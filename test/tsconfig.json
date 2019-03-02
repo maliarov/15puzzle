@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "jsx": "preserve",
+    "sourceMap": true,
+    "strict": true,
+    "typeRoots": [
+      "./types"
+    ],
+    "types": [
+      "jest",
+      "node"
+    ],
+    "esModuleInterop": true
+  },
+  "include": [
+    "./src",
+    "./test"
+  ]
+}

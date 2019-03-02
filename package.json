@@ -1,0 +1,45 @@
+{
+  "name": "15puzzle",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "blessed": "0.1.81",
+    "react": "16.8.3",
+    "react-blessed": "0.5.0"
+  },
+  "devDependencies": {
+    "@types/blessed": "0.1.10",
+    "@types/jest": "24.0.9",
+    "@types/lodash": "4.14.121",
+    "@types/node": "11.10.4",
+    "@types/react": "16.8.6",
+    "@types/react-blessed": "0.3.0",
+    "jest": "24.1.0",
+    "lodash": "4.17.11",
+    "ts-jest": "24.0.0",
+    "tslint": "5.13.1",
+    "typescript": "3.3.3333"
+  },
+  "scripts": {
+    "watch": "tsc -w",
+    "run": "node ./bin/src/app.js",
+    "build": "tsc",
+    "lint": "eslint .",
+    "test": "jest --config ./test/jest.config.js",
+    "start": "npm run build && npm run run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mujichOk/15puzzle.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mujichOk/15puzzle/issues"
+  },
+  "homepage": "https://github.com/mujichOk/15puzzle#readme"
+}
