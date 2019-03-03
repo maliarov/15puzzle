@@ -1,44 +1,47 @@
 import { chunk } from 'lodash';
 import React from 'react';
 
-import { init } from '../models/GameBoard';
+import { GameBoard } from '../models/GameBoard';
 
-const gameboard = init();
+export function Desk({ gameBoard }: { gameBoard: GameBoard }) {
+    const cellHeight = 100.0 / gameBoard.size.height;
+    const cellWidth = 100.0 / gameBoard.size.width;
+    const cells = chunk(gameBoard.values, gameBoard.size.width);
 
-const cellHeight = 100.0 / gameboard.size.height;
-const cellWidth = 100.0 / gameboard.size.width;
-
-const cells = chunk(gameboard.values, gameboard.size.width);
-
-export const Desk = () => (
-    <box
-        top="center"
-        left="center"
-        width="50%"
-        height="50%"
-        border={{ type: 'line' }}
-        style={{ border: { fg: 'blue' } }}
-    >
-        {cells.map((row, rowIndex) =>
-            <box
-                top={`${rowIndex * cellHeight}%`}
-                left="0%"
-                width="100%"
-                height={`${cellHeight}%`}
-            >
-                {row.map((cell, cellIndex) =>
-                    <box
-                        top="0%"
-                        left={`${cellIndex * cellWidth}%`}
-                        width={`${cellWidth}%`}
-                        height="100%"
-                        border={{ type: 'line' }}
-                        style={{ border: { fg: 'blue' } }}
-                    >
-                        {`${rowIndex}-${cell}`}
-                    </box>,
-                )}
-            </box>,
-        )}
-    </box>
-);
+    return (
+        <box
+            top="center"
+            left="center"
+            width="50%"
+            height="50%"
+            border={{ type: 'line' }}
+            style={{ border: { fg: 'blue' } }}
+        >
+            {cells.map((row, rowIndex) =>
+                <box
+                    top={`${rowIndex * cellHeight}%`}
+                    left="0%"
+                    width="100%"
+                    height={`${cellHeight}%`}
+                >
+                    {row.map((cell, cellIndex) =>
+                        ((cell !== 0) && (
+                            <box
+                                top="0%"
+                                left={`${cellIndex * cellWidth}%`}
+                                width={`${cellWidth}%`}
+                                height="100%"
+                                align="center"
+                                valign="middle"
+                                content={cell.toString()}
+                                border={{ type: 'line' }}
+                                style={{ border: { fg: 'blue' } }}
+                            />
+                        )
+                        ),
+                    )}
+                </box>,
+            )}
+        </box>
+    );
+}
