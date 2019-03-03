@@ -11,9 +11,9 @@ import {
   GameBordGenerator,
 
   init,
-  moveHoleTo,
-  canMoveHoleTo,
-  getHoleMoveDirs,
+  moveEmptySpaceTo,
+  canMoveEmptySpaceTo,
+  getEmptySpaceMoveDirs,
 } from '../../src/models/GameBoard';
 
 (<{
@@ -156,7 +156,7 @@ import {
     it('should return expected directions', () => {
       const dirs = expectations.map(({ dir }) => dir);
 
-      expect(getHoleMoveDirs(gameBoard))
+      expect(getEmptySpaceMoveDirs(gameBoard))
         .toMatchObject(dirs);
     });
 
@@ -164,11 +164,11 @@ import {
       describe(`move hole in {x: ${dir.x}, y: ${dir.y}} direction`, () => {
 
         it('should be possible to move', () => {
-          expect(canMoveHoleTo(gameBoard, dir)).toBeTruthy();
+          expect(canMoveEmptySpaceTo(gameBoard, dir)).toBeTruthy();
         });
 
         it('should return expected state after move', () => {
-          expect(moveHoleTo(gameBoard, dir))
+          expect(moveEmptySpaceTo(gameBoard, dir))
             .toMatchObject({
               size,
               values,

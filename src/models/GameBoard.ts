@@ -4,13 +4,11 @@ import lodash, { range } from 'lodash';
 
 import {
   Size2d,
-
   projectSize2dTo1d,
 } from '../util/Size';
 
 import {
   Vector2d,
-
   assertIsVec2dInBounds,
   projectVec1dTo2d,
   projectVec2dTo1d,
@@ -91,7 +89,7 @@ export function canMoveEmptySpaceTo(gameBoard: GameBoard, dir: Vector2d): boolea
   return isVec2dInBounds(gameBoard.size, newEmptySpacePos);
 }
 
-export function moveEmptyPlaceTo(gameBoard: GameBoard, dir: Vector2d): GameBoard {
+export function moveEmptySpaceTo(gameBoard: GameBoard, dir: Vector2d): GameBoard {
   assertIsValid(gameBoard);
   assertIsDirectionValid(dir);
 
@@ -117,6 +115,17 @@ export function moveEmptyPlaceTo(gameBoard: GameBoard, dir: Vector2d): GameBoard
     size,
     values: newValues,
   };
+}
+
+export function isSolved(gameBoard: GameBoard): boolean {
+  assertIsValid(gameBoard);
+
+  const values = [
+    ...gameBoard.values.slice(-1),
+    ...gameBoard.values.slice(0, -1),
+  ];
+
+  return values.every((value, index) => value === index);
 }
 
 export const hardModeGenerator = randomGenerator;
@@ -152,7 +161,7 @@ function backwordsGenerator(size: Size2d, steps: number): number[] {
     const dirs = getEmptySpaceMoveDirs(tempGameBoard);
     const dir = lodash.sample(dirs);
 
-    tempGameBoard = moveEmptyPlaceTo(tempGameBoard, <Vector2d>dir);
+    tempGameBoard = moveEmptySpaceTo(tempGameBoard, <Vector2d>dir);
   }
 
   return [...tempGameBoard.values];
@@ -193,15 +202,15 @@ function assertIsValidValues(size: Size2d, values: number[]) {
 }
 
 // note: https://www.cs.bham.ac.uk/~mdr/teaching/modules04/java2/TilesSolvability.html
-export function isSolvable(gridSize: Size2d, gridValues: number[]): boolean {
-  assertIsValidSize(gridSize);
-  assertIsValidValues(gridSize, gridValues);
+export function isSolvable(size: Size2d, values: number[]): boolean {
+  assertIsValidSize(size);
+  assertIsValidValues(size, values);
 
-  const emptySpaceRow = Math.floor(gridValues.indexOf(0) / gridSize.width);
-  const emptySpaceRowFromBottom = gridSize.height - emptySpaceRow;
-  const totalInversions = lodash(gridValues).map(countInversions).sum();
+  const emptySpaceRow = Math.floor(values.indexOf(0) / size.width);
+  const emptySpaceRowFromBottom = size.height - emptySpaceRow;
+  const totalInversions = lodash(values).map(countInversions).sum();
 
-  return gridSize.width % 2 === 0
+  return size.width % 2 === 0
     ? emptySpaceRowFromBottom % 2 !== totalInversions % 2
     : totalInversions % 2 === 0;
 }
