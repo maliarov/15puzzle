@@ -1,20 +1,27 @@
 import {
   Vector2d,
-  Size,
+} from '../../src/util/Vector';
+
+import {
+  Size2d,
+} from '../../src/util/Size';
+
+import {
   GameBoard,
+  GameBordGenerator,
 
   init,
-
   moveHoleTo,
   canMoveHoleTo,
   getHoleMoveDirs,
 } from '../../src/models/GameBoard';
 
 (<{
-  size: Size,
-  generator: (size: Size) => number[],
+  size: Size2d,
+  generator: GameBordGenerator,
   expectations: {
-    dir: Vector2d, values: number[],
+    dir: Vector2d,
+    values: number[],
   }[],
 }[]>
   [
@@ -167,6 +174,15 @@ import {
               values,
             });
         });
+
+        it('should not mutate previous state after move', () => {
+          expect(gameBoard)
+            .toMatchObject({
+              size,
+              values: generator(size),
+            });
+        });
+
       });
 
     });

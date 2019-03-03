@@ -1,8 +1,10 @@
 import { range } from 'lodash';
 
 import {
-  Size,
+  Size2d,
+} from '../../src/util/Size';
 
+import {
   hardModeGenerator,
   normalModeGenerator,
   easyModeGenerator,
@@ -10,18 +12,17 @@ import {
   isSolvable,
 } from '../../src/models/GameBoard';
 
-const gameBoardSize: Size = { width: 4, height: 4 };
+const gameBoardSize: Size2d = { width: 4, height: 4 };
 
-(<[Size, number[], boolean][]>[
-  [gameBoardSize, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0], true],
-  [gameBoardSize, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 14, 0], false],
+test.each([
 
-  ...range(0, 100).map(() => [gameBoardSize, hardModeGenerator(gameBoardSize), true]),
-  ...range(0, 100).map(() => [gameBoardSize, normalModeGenerator(gameBoardSize), true]),
-  ...range(0, 100).map(() => [gameBoardSize, easyModeGenerator(gameBoardSize), true]),
+  [[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0], true, gameBoardSize],
+  [[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 14, 0], false, gameBoardSize],
 
-]).forEach(([size, values, expectation]) => {
-  test(`solvability of [${values}] should be ${expectation}`, () => {
-    expect(isSolvable(size, values)).toBe(expectation);
-  });
+  ...range(0, 200).map(() => [hardModeGenerator(gameBoardSize), true, gameBoardSize]),
+  ...range(0, 200).map(() => [normalModeGenerator(gameBoardSize), true, gameBoardSize]),
+  ...range(0, 200).map(() => [easyModeGenerator(gameBoardSize), true, gameBoardSize]),
+
+])('solvability of [%s] should be %s', (values, expectation, size) => {
+  expect(isSolvable(size, values)).toBe(expectation);
 });

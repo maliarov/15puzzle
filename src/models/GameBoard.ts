@@ -2,26 +2,33 @@
 import assert from 'assert';
 import lodash, { range } from 'lodash';
 
+import {
+  Size2d,
+
+  projectSize2dTo1d,
+} from '../util/Size';
+
+import {
+  Vector2d,
+
+  assertIsVec2dInBounds,
+  projectVec1dTo2d,
+  projectVec2dTo1d,
+  addVec2d,
+} from '../util/Vector';
+
 export const defaultSize = 4;
 
-export interface Size {
-  width: number;
-  height: number;
-}
-
-export interface Vector2d {
-  x: number;
-  y: number;
-}
+export type GameBordGenerator = (size: Size2d) => number[];
 
 export interface GameBoard {
-  size: Size;
+  size: Size2d;
   values: number[];
 }
 
 export function init(params?: {
-  size?: Size,
-  generator?: (size: Size) => number[],
+  size?: Size2d,
+  generator?: GameBordGenerator,
 }): GameBoard {
   const {
     size = {
@@ -36,7 +43,6 @@ export function init(params?: {
   const gameBoard = {
     size,
     values,
-    holePos: indexToVec2d(size, values.indexOf(0)),
   };
 
   assertIsValid(gameBoard);
@@ -53,18 +59,18 @@ function assertIsDirectionValid(dir: Vector2d) {
   );
 }
 
-export function getHolePos(gameBoard: GameBoard): Vector2d {
+export function getEmptySpacePos(gameBoard: GameBoard): Vector2d {
   assertIsValid(gameBoard);
-  return indexToVec2d(gameBoard.size, gameBoard.values.indexOf(0));
+  return projectVec1dTo2d(gameBoard.size, gameBoard.values.indexOf(0));
 }
 
-export function getHoleMoveDirs(gameBoard: GameBoard): Vector2d[] {
+export function getEmptySpaceMoveDirs(gameBoard: GameBoard): Vector2d[] {
   assertIsValid(gameBoard);
 
-  const holePos = indexToVec2d(gameBoard.size, gameBoard.values.indexOf(0));
+  const emptySpacePos = projectVec1dTo2d(gameBoard.size, gameBoard.values.indexOf(0));
 
   const isValid = (dir: Vector2d) =>
-    isVec2dInBounds(gameBoard.size, addVec2d(holePos, dir));
+    isVec2dInBounds(gameBoard.size, addVec2d(emptySpacePos, dir));
 
   const dirs = [
     { x: -1, y: 0 },
@@ -76,16 +82,16 @@ export function getHoleMoveDirs(gameBoard: GameBoard): Vector2d[] {
   return dirs.filter(isValid);
 }
 
-export function canMoveHoleTo(gameBoard: GameBoard, dir: Vector2d): boolean {
+export function canMoveEmptySpaceTo(gameBoard: GameBoard, dir: Vector2d): boolean {
   assertIsValid(gameBoard);
   assertIsDirectionValid(dir);
 
-  const holePos = indexToVec2d(gameBoard.size, gameBoard.values.indexOf(0));
-  const newHolePos = addVec2d(holePos, dir);
-  return isVec2dInBounds(gameBoard.size, newHolePos);
+  const emptySpacePos = projectVec1dTo2d(gameBoard.size, gameBoard.values.indexOf(0));
+  const newEmptySpacePos = addVec2d(emptySpacePos, dir);
+  return isVec2dInBounds(gameBoard.size, newEmptySpacePos);
 }
 
-export function moveHoleTo(gameBoard: GameBoard, dir: Vector2d): GameBoard {
+export function moveEmptyPlaceTo(gameBoard: GameBoard, dir: Vector2d): GameBoard {
   assertIsValid(gameBoard);
   assertIsDirectionValid(dir);
 
@@ -94,15 +100,15 @@ export function moveHoleTo(gameBoard: GameBoard, dir: Vector2d): GameBoard {
     values,
   } = gameBoard;
 
-  const holePos = indexToVec2d(size, values.indexOf(0));
-  const newHolePos = addVec2d(holePos, dir);
+  const emptySpacePos = projectVec1dTo2d(size, values.indexOf(0));
+  const newEmptySpacePos = addVec2d(emptySpacePos, dir);
 
-  assertIsVec2dInBounds(size, newHolePos);
+  assertIsVec2dInBounds(size, newEmptySpacePos);
 
   const newValues = [...values];
 
-  const indexOfValueA = vec2dToIndex(size, holePos);
-  const indexOfValueB = vec2dToIndex(size, newHolePos);
+  const indexOfValueA = projectVec2dTo1d(size, emptySpacePos);
+  const indexOfValueB = projectVec2dTo1d(size, newEmptySpacePos);
 
   [newValues[indexOfValueA], newValues[indexOfValueB]] =
     [newValues[indexOfValueB], newValues[indexOfValueA]];
@@ -114,15 +120,15 @@ export function moveHoleTo(gameBoard: GameBoard, dir: Vector2d): GameBoard {
 }
 
 export const hardModeGenerator = randomGenerator;
-export const normalModeGenerator = (size: Size) => backwordsGenerator(size, 160);
-export const easyModeGenerator = (size: Size) => backwordsGenerator(size, 20);
+export const normalModeGenerator = (size: Size2d) => backwordsGenerator(size, 160);
+export const easyModeGenerator = (size: Size2d) => backwordsGenerator(size, 20);
 
-function randomGenerator(size: Size): number[] {
+function randomGenerator(size: Size2d): number[] {
   const maxAttempts = 1000;
-  let attempt = 0;
 
+  let attempt = 0;
   while (attempt < maxAttempts) {
-    const values = lodash(range(0, size.width * size.height)).shuffle().value();
+    const values = lodash(range(0, projectSize2dTo1d(size))).shuffle().value();
 
     if (isSolvable(size, values)) {
       return values;
@@ -136,60 +142,32 @@ function randomGenerator(size: Size): number[] {
   );
 }
 
-function backwordsGenerator(size: Size, steps: number): number[] {
+function backwordsGenerator(size: Size2d, steps: number): number[] {
   let tempGameBoard = init({
     size,
-    generator: () => lodash(range(1, size.width * size.height)).concat(0).value(),
+    generator: () => lodash(range(1, projectSize2dTo1d(size))).concat(0).value(),
   });
 
   for (let step = 0; step < steps; step += 1) {
-    const dirs = getHoleMoveDirs(tempGameBoard);
+    const dirs = getEmptySpaceMoveDirs(tempGameBoard);
     const dir = lodash.sample(dirs);
 
-    tempGameBoard = moveHoleTo(tempGameBoard, <Vector2d>dir);
+    tempGameBoard = moveEmptyPlaceTo(tempGameBoard, <Vector2d>dir);
   }
 
   return [...tempGameBoard.values];
 }
 
-function isVec2dInBounds(size: Size, vec: Vector2d) {
+function isVec2dInBounds(size: Size2d, vec: Vector2d) {
   return (
     (0 <= vec.x && vec.x < size.width) &&
     (0 <= vec.y && vec.y < size.height)
   );
 }
 
-function assertIsVec2dInBounds({ width, height }: Size, { x, y }: Vector2d) {
-  assert(0 <= x && x < width, `x should be in range [0..${width})`);
-  assert(0 <= y && y < height, `y should be in range [0..${height})`);
-}
-
-function assertIsValidIndex(index: number, { width, height }: Size) {
-  assert(0 <= index && index < width * height, `index should be in [0..${width * height}) range`);
-}
-
-function assertIsValidSize(size: Size) {
+function assertIsValidSize(size: Size2d) {
   assert(2 <= size.width, 'width should be in [2..infinity) range');
   assert(2 <= size.height, 'height should be in [2..infinity) range');
-}
-
-function vec2dToIndex(size: Size, vec: Vector2d) {
-  assertIsVec2dInBounds(size, vec);
-
-  return vec.y * size.width + vec.x;
-}
-
-function indexToVec2d(size: Size, index: number) {
-  assertIsValidIndex(index, size);
-
-  return {
-    y: Math.floor(index / size.width),
-    x: index % size.width,
-  };
-}
-
-export function addVec2d(vecA: Vector2d, vecB: Vector2d) {
-  return { x: vecA.x + vecB.x, y: vecA.y + vecB.y };
 }
 
 function assertIsValid({ size, values }: GameBoard) {
@@ -197,34 +175,34 @@ function assertIsValid({ size, values }: GameBoard) {
   assertIsValidValues(size, values);
 }
 
-function assertIsValidValues({ width, height }: Size, values: number[]) {
-  const maxValue = width * height;
+function assertIsValidValues(size: Size2d, values: number[]) {
+  const dimension = projectSize2dTo1d(size);
 
   assert(
-    values.length === maxValue,
-    `game board values are invalid, set should contains ${maxValue} values`,
+    values.length === dimension,
+    `game board values are invalid, set should contains ${dimension} values`,
   );
 
-  const sum = lodash(values).filter(value => 0 <= value && value < maxValue).sum();
-  const checkSum = lodash(lodash.range(1, maxValue)).sum();
+  const sum = lodash(values).filter(value => 0 <= value && value < dimension).sum();
+  const checkSum = lodash(lodash.range(1, dimension)).sum();
 
   assert(
     sum === checkSum,
-    `game board values are invalid, set should contains all uniq values in [0...${maxValue}) range`,
+    `game board values are invalid, set should contains all uniq values in [0...${dimension}) range`,
   );
 }
 
 // note: https://www.cs.bham.ac.uk/~mdr/teaching/modules04/java2/TilesSolvability.html
-export function isSolvable(gridSize: Size, gridValues: number[]): boolean {
+export function isSolvable(gridSize: Size2d, gridValues: number[]): boolean {
   assertIsValidSize(gridSize);
   assertIsValidValues(gridSize, gridValues);
 
-  const holeRow = Math.floor(gridValues.indexOf(0) / gridSize.width);
-  const holeRowFromBottom = gridSize.height - holeRow;
+  const emptySpaceRow = Math.floor(gridValues.indexOf(0) / gridSize.width);
+  const emptySpaceRowFromBottom = gridSize.height - emptySpaceRow;
   const totalInversions = lodash(gridValues).map(countInversions).sum();
 
   return gridSize.width % 2 === 0
-    ? holeRowFromBottom % 2 !== totalInversions % 2
+    ? emptySpaceRowFromBottom % 2 !== totalInversions % 2
     : totalInversions % 2 === 0;
 }
 
