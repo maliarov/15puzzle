@@ -5,16 +5,16 @@ import { render } from 'react-blessed';
 import { Desk } from './components/Desk';
 
 class App extends Component {
-    render() {
-        return <Desk />;
-    }
+  render() {
+    return <Desk />;
+  }
 }
 
 // Creating our screen
 const screen = blessed.screen({
-    autoPadding: true,
-    smartCSR: true,
-    title: '15 puzzle'
+  autoPadding: true,
+  smartCSR: true,
+  title: '15 puzzle',
 });
 
 // Adding a way to quit the program

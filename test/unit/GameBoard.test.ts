@@ -1,27 +1,27 @@
-import { init, moveHole, isSolvable } from '../../src/models/GameBoard';
+import { range } from 'lodash';
 
-(<[number, number, number[], boolean][]>[
-    [4, 4, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0], true],
-    [4, 4, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 14, 0], false],
-]).forEach(([width, height, values, expectation]) => {
-    test(`solvability of ${values} should be ${expectation}`, () => {
-        expect(isSolvable(width, height, values)).toBe(expectation);
-    });
-});
+import {
+  Size,
 
+  hardModeGenerator,
+  normalModeGenerator,
+  easyModeGenerator,
 
-test('moveHole', () => {
-    const generator = () => [[1, 5, 9, 13], [2, 6, 10, 14], [3, 7, 11, 15], [4, 8, 12, 0]];
+  isSolvable,
+} from '../../src/models/GameBoard';
 
-    const gameBoard = init({ generator });
+const gameBoardSize: Size = { width: 4, height: 4 };
 
-    expect(gameBoard).toMatchObject({
-        size: { width: 4, height: 4 },
-        holePos: { x: 3, y: 3 },
-        cells: [[1, 5, 9, 13], [2, 6, 10, 14], [3, 7, 11, 15], [4, 8, 12, 0]]
-    });
+(<[Size, number[], boolean][]>[
+  [gameBoardSize, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0], true],
+  [gameBoardSize, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 14, 0], false],
 
-    const newGameBoard = moveHole(gameBoard, { x: 0, y: -1 });
+  ...range(0, 100).map(() => [gameBoardSize, hardModeGenerator(gameBoardSize), true]),
+  ...range(0, 100).map(() => [gameBoardSize, normalModeGenerator(gameBoardSize), true]),
+  ...range(0, 100).map(() => [gameBoardSize, easyModeGenerator(gameBoardSize), true]),
 
-    expect(newGameBoard.cells).toMatchObject([[1, 5, 9, 13], [2, 6, 10, 14], [3, 7, 11, 15], [4, 8, 0, 12]]);
+]).forEach(([size, values, expectation]) => {
+  test(`solvability of [${values}] should be ${expectation}`, () => {
+    expect(isSolvable(size, values)).toBe(expectation);
+  });
 });

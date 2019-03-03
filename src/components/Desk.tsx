@@ -1,3 +1,4 @@
+import { chunk } from 'lodash';
 import React from 'react';
 
 import { init } from '../models/GameBoard';
@@ -6,6 +7,8 @@ const gameboard = init();
 
 const cellHeight = 100.0 / gameboard.size.height;
 const cellWidth = 100.0 / gameboard.size.width;
+
+const cells = chunk(gameboard.values, gameboard.size.width);
 
 export const Desk = () => (
     <box
@@ -16,7 +19,7 @@ export const Desk = () => (
         border={{ type: 'line' }}
         style={{ border: { fg: 'blue' } }}
     >
-        {gameboard.cells.map((row, rowIndex) =>
+        {cells.map((row, rowIndex) =>
             <box
                 top={`${rowIndex * cellHeight}%`}
                 left="0%"
@@ -33,9 +36,9 @@ export const Desk = () => (
                         style={{ border: { fg: 'blue' } }}
                     >
                         {`${rowIndex}-${cell}`}
-                    </box>
+                    </box>,
                 )}
-            </box>
+            </box>,
         )}
     </box>
 );
