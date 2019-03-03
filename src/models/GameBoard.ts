@@ -2,7 +2,7 @@
 import assert from 'assert';
 import lodash, { range } from 'lodash';
 
-const defaultFieldSize = 4;
+export const defaultSize = 4;
 
 export interface Size {
   width: number;
@@ -25,8 +25,8 @@ export function init(params?: {
 }): GameBoard {
   const {
     size = {
-      width: defaultFieldSize,
-      height: defaultFieldSize,
+      width: defaultSize,
+      height: defaultSize,
     },
     generator = normalModeGenerator,
   } = params || {};
@@ -45,8 +45,8 @@ export function init(params?: {
 }
 
 function assertIsDirectionValid(dir: Vector2d) {
-  assert(-1 <= dir.x && dir.x <= 1, 'direction vector x should be in range [-1..1]');
-  assert(-1 <= dir.y && dir.y <= 1, 'direction vector y should be in range [-1..1]');
+  assert(-1 <= dir.x && dir.x <= 1, 'direction vector x should be in [-1..1] range');
+  assert(-1 <= dir.y && dir.y <= 1, 'direction vector y should be in [-1..1] range');
   assert(
     Math.abs(dir.x) !== Math.abs(dir.y),
     'direction vector should be done only in vertical or horizontal direction, not diagonal',
@@ -160,17 +160,17 @@ function isVec2dInBounds(size: Size, vec: Vector2d) {
 }
 
 function assertIsVec2dInBounds({ width, height }: Size, { x, y }: Vector2d) {
-  assert(0 <= x && x < width, `x should be in range [0..${width}]`);
-  assert(0 <= y && y < height, `y should be in range [0..${height}]`);
+  assert(0 <= x && x < width, `x should be in range [0..${width})`);
+  assert(0 <= y && y < height, `y should be in range [0..${height})`);
 }
 
 function assertIsValidIndex(index: number, { width, height }: Size) {
-  assert(0 <= index && index < width * height, `index should be in range [0..${width * height}]`);
+  assert(0 <= index && index < width * height, `index should be in [0..${width * height}) range`);
 }
 
 function assertIsValidSize(size: Size) {
-  assert(2 <= size.width, 'width should be in range [2..infinity]');
-  assert(2 <= size.height, 'height should be in range [2..infinity]');
+  assert(2 <= size.width, 'width should be in [2..infinity) range');
+  assert(2 <= size.height, 'height should be in [2..infinity) range');
 }
 
 function vec2dToIndex(size: Size, vec: Vector2d) {
@@ -200,17 +200,18 @@ function assertIsValid({ size, values }: GameBoard) {
 function assertIsValidValues({ width, height }: Size, values: number[]) {
   const maxValue = width * height;
 
-  assert(values.length === maxValue, 'game board values are invalid');
+  assert(
+    values.length === maxValue,
+    `game board values are invalid, set should contains ${maxValue} values`,
+  );
 
   const sum = lodash(values).filter(value => 0 <= value && value < maxValue).sum();
   const checkSum = lodash(lodash.range(1, maxValue)).sum();
 
-  assert(sum === checkSum, 'game board values are invalid');
-
-  /* assert(
-      gridValues && gridValues.length === gridSize.width * gridSize.height,
-      `length of grid values should be [width x height]`,
-    ); */
+  assert(
+    sum === checkSum,
+    `game board values are invalid, set should contains all uniq values in [0...${maxValue}) range`,
+  );
 }
 
 // note: https://www.cs.bham.ac.uk/~mdr/teaching/modules04/java2/TilesSolvability.html
@@ -230,7 +231,5 @@ export function isSolvable(gridSize: Size, gridValues: number[]): boolean {
 function countInversions(gridValue: number, position: number, gridValues: number[]) {
   return lodash(gridValues)
     .slice(position + 1)
-    .filter(value => value > 0 && gridValue > value)
-    .value()
-    .length;
+    .reduce((accum, value) => accum + Number(value > 0 && gridValue > value), 0);
 }

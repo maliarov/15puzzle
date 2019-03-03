@@ -1,13 +1,13 @@
 import {
   Vector2d,
   Size,
+  GameBoard,
 
   init,
 
   moveHoleTo,
   canMoveHoleTo,
   getHoleMoveDirs,
-
 } from '../../src/models/GameBoard';
 
 (<{
@@ -140,11 +140,17 @@ import {
 ).forEach(({ size, generator, expectations }) => {
 
   describe(`try move hole in [${generator(size)}]`, () => {
-    const gameBoard = init({ generator, size });
+    let gameBoard: GameBoard;
+
+    beforeAll(() => {
+      gameBoard = init({ generator, size });
+    });
 
     it('should return expected directions', () => {
+      const dirs = expectations.map(({ dir }) => dir);
+
       expect(getHoleMoveDirs(gameBoard))
-        .toMatchObject(expectations.map(({ dir }) => dir));
+        .toMatchObject(dirs);
     });
 
     expectations.forEach(({ dir, values }) => {
