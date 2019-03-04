@@ -1,21 +1,17 @@
-import {
-  Vector2d,
-} from '../../src/util/Vector';
-
-import {
-  Size2d,
-} from '../../src/util/Size';
+import { Vector2d } from '../../src/util/Vector';
+import { Size2d } from '../../src/util/Size';
 
 import {
   GameBoard,
   GameBordGenerator,
-
   init,
   moveEmptySpaceTo,
   canMoveEmptySpaceTo,
   getEmptySpaceMoveDirs,
 } from '../../src/models/GameBoard';
 
+// note: did try jest test.each syntax in unit test file,
+//       but it is not flexible enough for test names formating.
 (<{
   size: Size2d,
   generator: GameBordGenerator,

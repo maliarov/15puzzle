@@ -1,4 +1,4 @@
-import { range, chunk } from 'lodash';
+import { chunk } from 'lodash';
 
 import { GamePlayEvent } from '../GamePlayEvent';
 import { GamePlayState } from '../GamePlaySession';

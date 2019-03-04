@@ -29,8 +29,8 @@ export function Desk({ gameBoard }: { gameBoard: GameBoard }) {
               content={cell.toString()}
               border={{ type: 'line' }}
             />
-          ))
-        )
+          )),
+        ),
       )}
     </box>
   );

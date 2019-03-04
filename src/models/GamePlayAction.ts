@@ -1,6 +1,4 @@
-import {
-  GamePlayState,
-} from './GamePlaySession';
+import { GamePlayState } from './GamePlaySession';
 
 export interface GamePlayAction {
   name: string;

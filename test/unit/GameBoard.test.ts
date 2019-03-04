@@ -1,14 +1,10 @@
 import { range } from 'lodash';
-
-import {
-  Size2d,
-} from '../../src/util/Size';
+import { Size2d } from '../../src/util/Size';
 
 import {
   hardModeGenerator,
   normalModeGenerator,
   easyModeGenerator,
-
   isSolvable,
 } from '../../src/models/GameBoard';
 
