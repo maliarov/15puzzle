@@ -1,5 +1,5 @@
 import { GameBoard } from './GameBoard';
-import { GamePlayEvent } from './GameplayEvent';
+import { GamePlayEvent } from './GamePlayEvent';
 import { GamePlayAction } from './GamePlayAction';
 
 export interface GamePlaySession {

@@ -1,6 +1,6 @@
 import { range, chunk } from 'lodash';
 
-import { GamePlayEvent } from '../GameplayEvent';
+import { GamePlayEvent } from '../GamePlayEvent';
 import { GamePlayState } from '../GamePlaySession';
 import { GamePlayAction } from '../GamePlayAction';
 
