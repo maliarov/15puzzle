@@ -4,12 +4,13 @@ import React from 'react';
 import blessed from 'blessed';
 import { render } from 'react-blessed';
 
+import { MainView } from './components/MainView';
+
 import { init as initMoveEmptySpaceGamePlayAction } from './models/GamePlayActions/MoveEmptySpace';
 import { init as initSolvedGamePlayEvent } from './models/GamePlayEvents/Solved';
 import { init as initScoreGamePlayEvent } from './models/GamePlayEvents/Score';
 import { init as initGameBoard, easyModeGenerator, normalModeGenerator, hardModeGenerator } from './models/GameBoard';
 import { init as initGamePlaySession, processAction as processGamePlaySessionAction } from './models/GamePlaySession';
-import { MainView } from './components/MainView';
 
 commander
   .version('1.0.0')
@@ -30,7 +31,7 @@ const viewState = {
 const screen = blessed.screen({
   autoPadding: true,
   smartCSR: true,
-  title: `${Math.pow(Number(commander.size), 2) - 1} puzzle: [${commander.ragelevel}]`,
+  title: `${Math.pow(Number(commander.size), 2) - 1} puzzle - ${commander.ragelevel} mode`,
 });
 
 screen.key(['escape', 'q', 'C-c'], () => process.exit(0));

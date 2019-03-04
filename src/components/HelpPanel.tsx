@@ -4,7 +4,7 @@ export function HelpPanel() {
   return (
     <box
       bottom="0" left="0"
-      width="100%-2" height="130"
+      width="100%-2" height="150"
       border={{ type: 'line' }}
       style={{ border: { fg: 'blue' } }}
       label=" &#9432; Help "
