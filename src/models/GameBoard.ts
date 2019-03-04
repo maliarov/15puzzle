@@ -13,6 +13,7 @@ import {
   projectVec1dTo2d,
   projectVec2dTo1d,
   addVec2d,
+  isVec2dInBounds,
 } from '../util/Vector';
 
 const maxGeneratorAttempts = 1000;
@@ -24,6 +25,42 @@ export type GameBordGenerator = (size: Size2d) => number[];
 export interface GameBoard {
   size: Size2d;
   values: number[];
+}
+
+function assertIsValidSize(size: Size2d) {
+  assert(2 <= size.width, 'width should be in [2..infinity) range');
+  assert(2 <= size.height, 'height should be in [2..infinity) range');
+}
+
+function assertIsValid({ size, values }: GameBoard) {
+  assertIsValidSize(size);
+  assertIsValidValues(size, values);
+}
+
+function assertIsValidValues(size: Size2d, values: number[]) {
+  const dimension = projectSize2dTo1d(size);
+
+  assert(
+    values.length === dimension,
+    `game board values are invalid, set should contains ${dimension} values`,
+  );
+
+  const sum = lodash(values).filter(value => 0 <= value && value < dimension).sum();
+  const checkSum = lodash(lodash.range(1, dimension)).sum();
+
+  assert(
+    sum === checkSum,
+    `game board values are invalid, set should contains all uniq values in [0...${dimension}) range`,
+  );
+}
+
+function assertIsDirectionValid(dir: Vector2d) {
+  assert(-1 <= dir.x && dir.x <= 1, 'direction vector x should be in [-1..1] range');
+  assert(-1 <= dir.y && dir.y <= 1, 'direction vector y should be in [-1..1] range');
+  assert(
+    Math.abs(dir.x) !== Math.abs(dir.y),
+    'direction vector should be done only in vertical or horizontal direction, not diagonal',
+  );
 }
 
 export function init(params?: {
@@ -48,15 +85,6 @@ export function init(params?: {
   assertIsValid(gameBoard);
 
   return gameBoard;
-}
-
-function assertIsDirectionValid(dir: Vector2d) {
-  assert(-1 <= dir.x && dir.x <= 1, 'direction vector x should be in [-1..1] range');
-  assert(-1 <= dir.y && dir.y <= 1, 'direction vector y should be in [-1..1] range');
-  assert(
-    Math.abs(dir.x) !== Math.abs(dir.y),
-    'direction vector should be done only in vertical or horizontal direction, not diagonal',
-  );
 }
 
 export function getEmptySpacePos(gameBoard: GameBoard): Vector2d {
@@ -157,7 +185,7 @@ function randomGenerator(size: Size2d): number[] {
 function backwordsGenerator(size: Size2d, steps: number): number[] {
   let tempGameBoard = init({
     size,
-    generator: () => lodash(range(1, projectSize2dTo1d(size))).concat(0).value(),
+    generator: () => [...range(1, projectSize2dTo1d(size)), 0],
   });
 
   let attempt = 0;
@@ -179,40 +207,6 @@ function backwordsGenerator(size: Size2d, steps: number): number[] {
 
   throw new Error(
     `something goes wrong, backwordsGenerator can not generate solvable preset after ${maxGeneratorAttempts} iterations`,
-  );
-}
-
-function isVec2dInBounds(size: Size2d, vec: Vector2d) {
-  return (
-    (0 <= vec.x && vec.x < size.width) &&
-    (0 <= vec.y && vec.y < size.height)
-  );
-}
-
-function assertIsValidSize(size: Size2d) {
-  assert(2 <= size.width, 'width should be in [2..infinity) range');
-  assert(2 <= size.height, 'height should be in [2..infinity) range');
-}
-
-function assertIsValid({ size, values }: GameBoard) {
-  assertIsValidSize(size);
-  assertIsValidValues(size, values);
-}
-
-function assertIsValidValues(size: Size2d, values: number[]) {
-  const dimension = projectSize2dTo1d(size);
-
-  assert(
-    values.length === dimension,
-    `game board values are invalid, set should contains ${dimension} values`,
-  );
-
-  const sum = lodash(values).filter(value => 0 <= value && value < dimension).sum();
-  const checkSum = lodash(lodash.range(1, dimension)).sum();
-
-  assert(
-    sum === checkSum,
-    `game board values are invalid, set should contains all uniq values in [0...${dimension}) range`,
   );
 }
 
