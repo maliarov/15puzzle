@@ -22,10 +22,19 @@ export function init(): GamePlayEvent {
   };
 
   function init(state: GamePlayState): GamePlayState {
+    // note: go through each row and check if it is already formed in right order
+    const cells = chunk(state.gameBoard.values, state.gameBoard.size.width);
+    const rows = cells.map((row, rowIndex) =>
+      row.every((value, index) =>
+        value === rowIndex * state.gameBoard.size.width + index + 1 ||
+        (value === 0 && rowIndex === state.gameBoard.size.height - 1 && index === state.gameBoard.size.width - 1),
+      ),
+    );
+
     return {
       ...state,
       Score: {
-        rows: range(0, state.gameBoard.size.height).map(() => false),
+        rows,
         value: 0,
       },
     } as ScoreGamePlayState;
@@ -42,7 +51,7 @@ export function init(): GamePlayEvent {
     const row = cells.findIndex((row, rowIndex) =>
       !scoreState.rows[rowIndex] && row.every((value, index) =>
         value === rowIndex * state.gameBoard.size.width + index + 1 ||
-        (value === 0 && index === state.gameBoard.size.width - 1),
+        (value === 0 && rowIndex === state.gameBoard.size.height - 1 && index === state.gameBoard.size.width - 1),
       ),
     );
 

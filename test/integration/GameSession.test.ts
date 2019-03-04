@@ -12,7 +12,7 @@ import {
   ScoreGamePlayState,
 } from '../../src/models/GamePlayEvents/Score';
 
-describe('sunshine scenarios', () => {
+describe('sunshine scenario', () => {
 
   describe('user makes few moves and win game', () => {
     const gameBoard = initGameBoard({
@@ -51,9 +51,6 @@ describe('sunshine scenarios', () => {
         rows: [true, true, true],
         value: 700,
       });
-
-      console.log(newGameSession.history.actions);
-
     });
 
   });

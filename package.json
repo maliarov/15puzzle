@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "blessed": "0.1.81",
+    "commander": "2.19.0",
     "react": "16.8.3",
     "react-blessed": "0.5.0"
   },
@@ -31,7 +32,7 @@
     "build": "tsc",
     "lint": "tslint --project ./tsconfig.json",
     "test": "jest --config ./test/jest.config.js",
-    "start": "npm run build && npm run run"
+    "start": "npm run build && npm run run --"
   },
   "repository": {
     "type": "git",

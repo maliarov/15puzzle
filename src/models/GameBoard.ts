@@ -15,6 +15,8 @@ import {
   addVec2d,
 } from '../util/Vector';
 
+const maxGeneratorAttempts = 1000;
+
 export const defaultSize = 4;
 
 export type GameBordGenerator = (size: Size2d) => number[];
@@ -119,13 +121,16 @@ export function moveEmptySpaceTo(gameBoard: GameBoard, dir: Vector2d): GameBoard
 
 export function isSolved(gameBoard: GameBoard): boolean {
   assertIsValid(gameBoard);
+  return isSolvedSet(gameBoard.values);
+}
 
-  const values = [
-    ...gameBoard.values.slice(-1),
-    ...gameBoard.values.slice(0, -1),
+function isSolvedSet(values: number[]): boolean {
+  const normalizedValues = [
+    ...values.slice(-1),
+    ...values.slice(0, -1),
   ];
 
-  return values.every((value, index) => value === index);
+  return normalizedValues.every((value, index) => value === index);
 }
 
 export const hardModeGenerator = randomGenerator;
@@ -133,13 +138,11 @@ export const normalModeGenerator = (size: Size2d) => backwordsGenerator(size, 16
 export const easyModeGenerator = (size: Size2d) => backwordsGenerator(size, 20);
 
 function randomGenerator(size: Size2d): number[] {
-  const maxAttempts = 1000;
-
   let attempt = 0;
-  while (attempt < maxAttempts) {
+  while (attempt < maxGeneratorAttempts) {
     const values = lodash(range(0, projectSize2dTo1d(size))).shuffle().value();
 
-    if (isSolvable(size, values)) {
+    if (isSolvable(size, values) && !isSolvedSet(values)) {
       return values;
     }
 
@@ -147,7 +150,7 @@ function randomGenerator(size: Size2d): number[] {
   }
 
   throw new Error(
-    `something goes wrong, system can not generate solvable preset after ${maxAttempts} iterations`,
+    `something goes wrong, randomGenerator can not generate solvable preset after ${maxGeneratorAttempts} iterations`,
   );
 }
 
@@ -157,14 +160,26 @@ function backwordsGenerator(size: Size2d, steps: number): number[] {
     generator: () => lodash(range(1, projectSize2dTo1d(size))).concat(0).value(),
   });
 
-  for (let step = 0; step < steps; step += 1) {
-    const dirs = getEmptySpaceMoveDirs(tempGameBoard);
-    const dir = lodash.sample(dirs);
+  let attempt = 0;
 
-    tempGameBoard = moveEmptySpaceTo(tempGameBoard, <Vector2d>dir);
+  while (attempt < maxGeneratorAttempts) {
+    for (let step = 0; step < steps; step += 1) {
+      const dirs = getEmptySpaceMoveDirs(tempGameBoard);
+      const dir = lodash.sample(dirs);
+
+      tempGameBoard = moveEmptySpaceTo(tempGameBoard, <Vector2d>dir);
+    }
+
+    if (!isSolvedSet(tempGameBoard.values)) {
+      return [...tempGameBoard.values];
+    }
+
+    attempt += 1;
   }
 
-  return [...tempGameBoard.values];
+  throw new Error(
+    `something goes wrong, backwordsGenerator can not generate solvable preset after ${maxGeneratorAttempts} iterations`,
+  );
 }
 
 function isVec2dInBounds(size: Size2d, vec: Vector2d) {
