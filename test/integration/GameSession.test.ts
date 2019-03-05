@@ -2,6 +2,7 @@ import {
   init as initGamePlaySession,
   processActions as processGamePlaySessionActions,
   GamePlayStatus,
+  GamePlaySession,
 } from '../../src/models/GamePlaySession';
 
 import { init as initGameBoard } from '../../src/models/GameBoard';
@@ -15,37 +16,44 @@ import {
 describe('sunshine scenario', () => {
 
   describe('user makes few moves and win game', () => {
-    const gameBoard = initGameBoard({
-      size: { width: 3, height: 3 },
-      generator: () => [
-        1, 0, 3,
-        4, 2, 6,
-        7, 5, 8,
-      ],
-    });
-    const gameScenario = [
-      initScoreGamePlayEvent(),
-      initSolvedGamePlayEvent(),
-    ];
-    const gameSession = initGamePlaySession({ gameBoard, gameScenario });
+    let gameSession: GamePlaySession;
 
-    it('should put game play session to win status', async () => {
-      const newGameSession = await processGamePlaySessionActions(gameSession, [
+    beforeAll(async () => {
+      const gameBoard = initGameBoard({
+        size: { width: 3, height: 3 },
+        generator: () => [
+          1, 0, 3,
+          4, 2, 6,
+          7, 5, 8,
+        ],
+      });
+      const gameScenario = [
+        initScoreGamePlayEvent(),
+        initSolvedGamePlayEvent(),
+      ];
+
+      gameSession = initGamePlaySession({ gameBoard, gameScenario });
+
+      gameSession = await processGamePlaySessionActions(gameSession, [
         initMoveEmptySpaceGamePlayAction({ dir: { x: 0, y: 1 } }),
         initMoveEmptySpaceGamePlayAction({ dir: { x: 0, y: 1 } }),
         initMoveEmptySpaceGamePlayAction({ dir: { x: 1, y: 0 } }),
       ]);
+    });
 
-      expect(newGameSession.state.gameBoard.values).toMatchObject([
+    it('should put game play session state to win status', () => {
+      expect(gameSession.state.gameBoard.values).toMatchObject([
         1, 2, 3,
         4, 5, 6,
         7, 8, 0,
       ]);
 
-      expect(newGameSession.state.status).toBe(GamePlayStatus.win);
+      expect(gameSession.state.status).toBe(GamePlayStatus.win);
+    });
 
+    it('should put score game play session state to expected state', () => {
       const { Score: scoreState } =
-        newGameSession.state as ScoreGamePlayState;
+        gameSession.state as ScoreGamePlayState;
 
       expect(scoreState).toMatchObject({
         rows: [true, true, true],
