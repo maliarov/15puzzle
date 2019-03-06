@@ -13,11 +13,12 @@ export function init({ row }: { row: number }): GamePlayAction {
 
   function apply(state: GamePlayState): GamePlayState | null {
     const scoreState = state as ScoreGamePlayState;
-    const rows = [...scoreState.Score.rows];
 
-    if (rows[row]) {
+    if (scoreState.Score.rows[row]) {
       return null;
     }
+
+    const rows = [...scoreState.Score.rows];
 
     return {
       ...scoreState,
